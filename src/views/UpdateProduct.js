@@ -5,11 +5,11 @@ import {getProducts,deleteProduct, updateProduct, getCategories} from '../api/ap
 import {Button, Alert} from 'react-bootstrap'
 
 const CreateProductFormSchema = Yup.object().shape({
-    "title":Yup.string().required("Required"),
-    "price":Yup.string().matches(/^\d+(\.\d{0,2})?$/,"Please enter a valid price form (ex: 9.99)").required("Required"),
-    "description":Yup.string().required("Required"),
-    "imgage":Yup.string().required("Required"),
-    "category":Yup.string().required("Required")
+    'title': Yup.string().required('Required'),
+    'price':Yup.string().matches(/^\d+(\.\d{1,2})?$/, "Please enter a valid price form").required('Required'),
+    'description': Yup.string().required('Required'),
+    'image': Yup.string().required('Required'),
+    'category': Yup.string().required('Required'),   
 })
 
 export default class UpdateProduct extends Component {
@@ -28,16 +28,7 @@ export default class UpdateProduct extends Component {
         }
     }
 
-    deleteProduct=async()=>{
-        if (window.confirm(`Are you sure you want to delete ${this.state.product.title}?`)){
-            const res =await deleteProduct(this.state.product.id)
-            if (res){this.setState({successfulDelete:true,unsuccessfulDelete:false}); this.getAllProducts();
-            }
-            else{this.setState({successfulDelete:false,unsuccessfulDelete:true})
-            }
-        }
-    }
-
+    
     componentDidMount() {
         this.getAllProducts()
         this.getAllCategories()
@@ -59,16 +50,16 @@ export default class UpdateProduct extends Component {
         }
     }
 
-    handleSubmit = async (values)=>{
-        console.log("values: ",values)
-        const res=await updateProduct({id:this.state.product.id})
+    handleSubmit= async (values)=>{
+        const res=await updateProduct({id:this.state.product.id, values})
         console.log(res)
         if (res){
-            this.setState({successfulPost:true})
+            this.setState({successfulPost:true,unsuccessfulPost:false,product:{}})
+            this.getAllProducts()
         }else{
-            this.setState({unsuccessfulPost:true})
+            this.setState({unsuccessfulPost:true,successfulPost:false})
         }
-        this.getAllProducts()  
+
     }
 
     handlePullDown=(event)=>{
@@ -76,6 +67,16 @@ export default class UpdateProduct extends Component {
         if (newId===0){return}
         const newProduct = this.state.products.filter((li)=>li.id===parseInt(newId))[0];
         this.setState({product:newProduct});
+    }
+
+    deleteProduct=async()=>{
+        if (window.confirm(`Are you sure you want to delete ${this.state.product.title}?`)){
+            const res =await deleteProduct(this.state.product.id)
+            if (res){this.setState({successfulDelete:true,unsuccessfulDelete:false}); this.getAllProducts();
+            }
+            else{this.setState({successfulDelete:false,unsuccessfulDelete:true})
+            }
+        }
     }
 
     render() {
@@ -121,20 +122,19 @@ export default class UpdateProduct extends Component {
                                 <Formik initialValues={
                                     {
                                         title:this.state.product?.title ?? '',
-                                        description:this.state.product?.description??'',
                                         price:this.state.product?.price??'',
+                                        description:this.state.product?.description??'',   
                                         image:this.state.product?.image?? '',
                                         category:this.state.product?.category??''   
                                     }
                                 }
-                                enableReinitialize
                                 validationSchema={CreateProductFormSchema}
                                 onSubmit={ (values, {resetForm}) => {
                                     console.log(values);
                                     this.handleSubmit(values);
                                     resetForm({  title: '',
-                                                description: '',
                                                 price: '',
+                                                description: '',
                                                 image:'',
                                                 category:''
                                             })
