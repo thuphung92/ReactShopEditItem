@@ -62,7 +62,7 @@ export const addProduct = async (data) =>{
 
 //update a product
 export const updateProduct = async (data,id) =>{
-    const response = await apiClient.patch(`/products/${id}`);
+    const response = await apiClient.put(`/products/${id}`, data);
     if (response.ok){return true}else{return false}
 }
 
